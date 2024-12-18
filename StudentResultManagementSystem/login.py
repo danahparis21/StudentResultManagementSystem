@@ -38,10 +38,10 @@ class Login_Window:
 
         #===PASSWORD===#
         self.password_icon_label = Label(Frame_login, image=self.password_icon, bg="white")
-        self.password_icon_label.place(x=50, y=215, width=30, height=30)  # Position the icon
+        self.password_icon_label.place(x=50, y=215, width=30, height=30)  
         self.txt_password = ttk.Entry(Frame_login, font=("Poppins", 12), foreground="gray", show="*")
-        self.txt_password.place(x=90, y=210, width=260, height=40)  # Adjust the position to make room for the icon
-        self.txt_password.insert(0, "Password")  # Placeholder text
+        self.txt_password.place(x=90, y=210, width=260, height=40)  
+        self.txt_password.insert(0, "Password")
         self.txt_password.bind("<FocusIn>", self.on_focus_in_password)
         self.txt_password.bind("<FocusOut>", self.on_focus_out_password)
 
@@ -92,27 +92,37 @@ class Login_Window:
     
     #===DATABASE CONNECTION===#
     def login_function(self):
+        try:
+            with sqlite3.connect("users.db") as conn:
+                cursor = conn.cursor()
+                
+                # Set the journal mode to WAL (Write-Ahead Logging)
+                cursor.execute("PRAGMA journal_mode=WAL")
+                
         
-        conn = sqlite3.connect("users.db")
-        cursor = conn.cursor()
-        cursor.execute("CREATE TABLE IF NOT EXISTS teacher (username TEXT, password TEXT)")
-        #cursor.execute
-        if cursor.fetchone() is None:
-            cursor.execute("INSERT INTO teacher (username, password) VALUES ('admin', '12345')")
-            conn.commit()
-        # Get user input
-        username = self.txt_username.get()
-        password = self.txt_password.get()
-        # Validate credentials
-        cursor.execute("SELECT * FROM teacher WHERE username=? AND password=?", (username, password))
-        row = cursor.fetchone()
-        if row is not None:
-            messagebox.showinfo("Success", "Login Successful!")
-            self.root.destroy()  # Close the login window
-            os.system(r'python "C:\Users\63945\Documents\CompProgProject\StudentResultManagementSystem\dashboard.py"')
-        else:
-            messagebox.showerror("Error", "Invalid Username or Password")
-        conn.close()
+                cursor.execute("CREATE TABLE IF NOT EXISTS teacher (username TEXT, password TEXT)")
+
+            
+                if cursor.fetchone() is None:
+                    cursor.execute("INSERT INTO teacher (username, password) VALUES ('teacher', '12345')")
+                    conn.commit()
+
+                username = self.txt_username.get()
+                password = self.txt_password.get()
+                cursor.execute("SELECT * FROM teacher WHERE username=? AND password=?", (username, password))
+                row = cursor.fetchone()
+
+                if row is not None:
+                    messagebox.showinfo("Success", "Login Successful!")
+                    self.root.destroy()  
+                    os.system(r'python "C:\Users\63945\Documents\CompProgProject\StudentResultManagementSystem\dashboard.py"')
+                else:
+                    messagebox.showerror("Error", "Invalid Username or Password")
+
+        except sqlite3.Error as e:
+            messagebox.showerror("Database Error", f"An error occurred with the database: {e}")
+
+
 
 if __name__ == '__main__':
     root = Tk()

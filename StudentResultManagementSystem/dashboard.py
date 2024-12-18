@@ -1,6 +1,6 @@
 from tkinter import *
 from PIL import Image, ImageTk  # pip install pillow
-from course import CourseClass
+from subject import subjectClass
 from student import StudentClass
 from result import ResultClass
 from report import ReportClass
@@ -52,7 +52,7 @@ class SRMS:
             button.bind("<Leave>", on_leave)
             return button
 
-        btn_course = create_button("Course", self.add_course, 0)
+        btn_subject = create_button("Subject", self.add_subject, 0)
         btn_student = create_button("Student", self.add_student, 240)
         btn_result = create_button("Result", self.add_result, 450)
         btn_view = create_button("View Students Results", self.add_report, 680)
@@ -67,10 +67,10 @@ class SRMS:
         self.lbl_bg = Label(self.root, image=self.bg_img, bg="white").place(x=0, y=150, width=1360, height=450)
         
         #===LABELS===#
-        self.lbl_course = Label(self.root, text="Total Courses\n[0]", 
+        self.lbl_subject = Label(self.root, text="Total Subject\n[0]", 
                                 font=("Poppins", 20, "bold"), bd=5, bg="#4a90e2", fg="white", 
                                 padx=10, pady=10, anchor="center")
-        self.lbl_course.place(x=10, y=530, width=300, height=100)
+        self.lbl_subject.place(x=10, y=530, width=300, height=100)
 
         self.lbl_student = Label(self.root, text="Total Students\n[0]", 
                                  font=("Poppins", 20, "bold"), bd=5, bg="#3b8cdb", fg="white", 
@@ -92,34 +92,32 @@ class SRMS:
 
 #================================================================
     def update_details(self):
-        con = sqlite3.connect(database="sgs.db")
-        cur = con.cursor()
-
         try:
-            cur.execute("SELECT * FROM course")
-            cr = cur.fetchall()
-            
-            self.lbl_course.config(text=f"Total Courses\n[{str(len(cr))}]")
+            with sqlite3.connect(database="sgs.db") as con:
+                cur = con.cursor()
 
-            cur.execute("SELECT * FROM student")
-            cr = cur.fetchall()
-            
-            self.lbl_student.config(text=f"Total Students\n[{str(len(cr))}]")
+                # Get the total counts
+                cur.execute("SELECT COUNT(*) FROM subject")
+                subject_count = cur.fetchone()[0]
+                self.lbl_subject.config(text=f"Total Subject\n[{str(subject_count)}]")
 
-            cur.execute("SELECT * FROM result")
-            cr = cur.fetchall()
-            
-            self.lbl_result.config(text=f"Total Result\n[{str(len(cr))}]")
+                cur.execute("SELECT COUNT(*) FROM student")
+                student_count = cur.fetchone()[0]
+                self.lbl_student.config(text=f"Total Students\n[{str(student_count)}]")
 
-            self.lbl_course.after(200, self.update_details)  # automatic update
-            
+                cur.execute("SELECT COUNT(*) FROM result")
+                result_count = cur.fetchone()[0]
+                self.lbl_result.config(text=f"Total Result\n[{str(result_count)}]")
+
         except Exception as ex:
             messagebox.showerror("Error", f"Error due to {str(ex)}")
 
+
+
     #===BUTTON ACTIONEVENTS===#
-    def add_course(self):
+    def add_subject(self):
         self.new_win = Toplevel(self.root)
-        self.new_obj = CourseClass(self.new_win)
+        self.new_obj = subjectClass(self.new_win)
 
     def add_student(self):
         self.new_win = Toplevel(self.root)
@@ -144,7 +142,7 @@ class SRMS:
         if op == True:
             self.root.destroy()
 
-
+#course
 if __name__ == '__main__':
     root = Tk()
     obj = SRMS(root)

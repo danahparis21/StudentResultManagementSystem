@@ -4,17 +4,18 @@ def create_db():
     con = sqlite3.connect("sgs.db")
     cur = con.cursor()
     
-    # Create course table
+   
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS course(
-            cid INTEGER PRIMARY KEY AUTOINCREMENT, 
-            name TEXT, 
-            duration TEXT, 
-            charges TEXT, 
-            description TEXT
-        )
+    CREATE TABLE IF NOT EXISTS subject (
+        subjectID INTEGER PRIMARY KEY AUTOINCREMENT, 
+        name TEXT, 
+        duration TEXT, 
+        units TEXT, 
+        description TEXT
+    );
     """)
     con.commit()
+
 
     # Create student table 
     cur.execute("""
@@ -34,31 +35,46 @@ def create_db():
     """)
     con.commit()
 
-    # Create result table
+    
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS result(
-            sid INTEGER PRIMARY KEY AUTOINCREMENT, 
-            studentID TEXT, 
-            name TEXT, 
-            course TEXT, 
-            marks_ob TEXT, 
-            full_grades TEXT, 
-            per TEXT
-        )
+    CREATE TABLE IF NOT EXISTS result (
+        sid INTEGER PRIMARY KEY AUTOINCREMENT, 
+        studentID TEXT, 
+        name TEXT, 
+        subject TEXT, 
+        marks_ob TEXT, 
+        full_grades TEXT, 
+        per TEXT,
+        status TEXT,
+        quarter TEXT
+    );
     """)
     con.commit()
 
-    # Create student-course relationship table
+    
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS student_course (
-            sc_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            studentID INTEGER NOT NULL, 
-            cid INTEGER NOT NULL, 
-            FOREIGN KEY (studentID) REFERENCES student(studentID), 
-            FOREIGN KEY (cid) REFERENCES course(cid)
-        )
+    CREATE TABLE IF NOT EXISTS teacher (
+        username TEXT PRIMARY KEY, 
+        password TEXT
+    );
     """)
     con.commit()
+
+    print("Database TEACHER created or already exist.")
+    
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS student_subject (
+        ss_id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        studentID INTEGER NOT NULL, 
+        subjectID INTEGER NOT NULL, 
+        FOREIGN KEY (studentID) REFERENCES student(studentID), 
+        FOREIGN KEY (subjectID) REFERENCES subject(subjectID)
+    );
+    """)
+    con.commit()
+
+    print("Data transferred successfully.")
 
     cur.execute("SELECT * FROM result")
 
